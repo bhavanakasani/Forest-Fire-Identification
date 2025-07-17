@@ -14,10 +14,10 @@ def detect_fire(frame):
     # Threshold the image to get only fire-like colors
     mask = cv2.inRange(hsv, lower, upper)
 
-    # Calculate number of fire-like pixels
+    # Count fire-like pixels
     fire_pixels = cv2.countNonZero(mask)
 
-    if fire_pixels > 2000:  # You can adjust this threshold
+    if fire_pixels > 2000:
         return True, mask
     return False, mask
 
@@ -25,8 +25,15 @@ def detect_fire(frame):
 root = tk.Tk()
 root.withdraw()  # Hide main window
 
-# Open webcam (or replace 0 with a video file path)
-cap = cv2.VideoCapture(0)
+# Open video file
+cap = cv2.VideoCapture("forest_fire_video.mp4")
+if not cap.isOpened():
+    print("❌ Failed to open video file. Please check the path and filename.")
+else:
+    print("✅ Video opened successfully. Starting frame loop...")
+
+# Show alert only once
+alert_shown = False
 
 while True:
     ret, frame = cap.read()
@@ -35,9 +42,10 @@ while True:
 
     fire_detected, mask = detect_fire(frame)
 
-    if fire_detected:
+    if fire_detected and not alert_shown:
         print("🔥 Fire Detected!")
         messagebox.showwarning("Fire Alert", "🔥 Fire Detected!")
+        alert_shown = True  # Prevent repeated alerts
 
     cv2.imshow("Live Feed", frame)
     cv2.imshow("Fire Mask", mask)
